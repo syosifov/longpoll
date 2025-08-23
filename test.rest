@@ -3,12 +3,18 @@
 
 ### Long Polling
 
-GET {{server}}/poll
+
+GET {{server}}/subscribe/john
 Content-Type: application/json
 
 ###
 
-POST {{server}}/publish
+GET {{server}}/poll/john
+Content-Type: application/json
+
+###
+
+POST {{server}}/publish/john
 Content-Type: application/json
 
 {
