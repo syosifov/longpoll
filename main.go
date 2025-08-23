@@ -44,7 +44,7 @@ func main() {
 	router.POST("/publish/:clientId", publishHandler)
 
 	// Clean up inactive clients periodically.
-	// go cleanUpInactiveClients()
+	go cleanUpInactiveClients()
 
 	log.Println("Server started on port 8080...")
 	if err := router.Run(":8080"); err != nil {
@@ -81,18 +81,19 @@ func pollHandler(c *gin.Context) {
 		return
 	}
 
-	mu.RLock()
-	client, ok := clientChannels[clientId]
-	mu.RUnlock()
-
-	if !ok {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Client not found"})
-		return
-	}
-
-	// Update the "last seen" timestamp for the client.
 	mu.Lock()
-	client.LastSeen = time.Now()
+	client, ok := clientChannels[clientId]
+	if !ok {
+		clientChan := make(chan Event, 1)
+		client = &ClientState{
+			Channel:  clientChan,
+			LastSeen: time.Now(),
+		}
+		clientChannels[clientId] = client
+		log.Printf("Client subscribed: %s", clientId)
+	} else {
+		client.LastSeen = time.Now()
+	}
 	mu.Unlock()
 
 	// Set a timeout for the request to prevent it from hanging indefinitely.
@@ -106,6 +107,7 @@ func pollHandler(c *gin.Context) {
 	case <-timeout:
 		// The timeout was reached. Respond with "no content."
 		c.JSON(http.StatusNoContent, nil)
+		log.Printf("Poll timeout for client: %s", clientId)
 		return
 	}
 }
@@ -155,6 +157,7 @@ func cleanUpInactiveClients() {
 			if time.Since(clientState.LastSeen) > clientTimeout {
 				delete(clientChannels, clientId)
 				log.Printf("Cleaned up inactive client: %s", clientId)
+				log.Printf("Active clients remaining: %d", len(clientChannels))
 				// Close the channel to release resources.
 				close(clientState.Channel)
 			}

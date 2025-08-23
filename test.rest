@@ -1,22 +1,29 @@
 @server = http://localhost:8080
 # @server = http://127.0.0.1:8080
 
-### Long Polling
 
-
-GET {{server}}/subscribe/john
-Content-Type: application/json
-
-###
-
+########### John ###############
+### poll
 GET {{server}}/poll/john
 Content-Type: application/json
 
-###
-
+### publish
 POST {{server}}/publish/john
 Content-Type: application/json
 
 {
-    "message": "Hello, world!"
+    "message": "Hello, John!"
+}
+
+########### Mary ###############
+### poll
+GET {{server}}/poll/mary
+Content-Type: application/json
+
+### publish
+POST {{server}}/publish/mary
+Content-Type: application/json
+
+{
+    "message": "Hello, Mary!"
 }
