@@ -22,12 +22,16 @@ type ClientState struct {
 
 var (
 	// clientChannels maps a client ID to its state.
-	clientChannels = make(map[string]*ClientState)
+	clientChannels map[string]*ClientState
 	// mutex for safe concurrent access to the clientChannels map.
 	mu sync.RWMutex
 	// Define the timeout duration for client inactivity.
 	clientTimeout = 1 * time.Minute
 )
+
+func init() {
+	clientChannels = make(map[string]*ClientState)
+}
 
 func PollHandler(c *gin.Context) {
 	clientId := c.Param("clientId")
