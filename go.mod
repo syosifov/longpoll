@@ -1,4 +1,4 @@
-module example.com/m
+module github.com/syosifov/longpoll
 
 go 1.23.4
 
