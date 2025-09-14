@@ -3,9 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/syosifov/longpoll/lpoll"
-
 	"github.com/gin-gonic/gin"
+	"github.com/syosifov/longpoll/lpoll/lpoll"
 )
 
 // Event is the data structure for events.
